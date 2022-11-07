@@ -109,7 +109,7 @@ Set the openetv_logfile and openetv_pidfile variables to a directory path where 
 
 Enigma host:
 Make sure the Enigma WebIf is enabled on your Dreambox or clone. If so, configure the ip address and the tcp port
-of your device in the following options, for example:\
+of your device in the following options, for example:
 
 ```
 enigma2_host     = 192.168.0.10
