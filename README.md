@@ -70,7 +70,7 @@ apt-get install -y python-libxml2
 apt-get install -y pulseaudio
 ```
 
-### Run VLC as root in LXC\
+### Run VLC as root in LXC
 
 ```
 sed -i 's/geteuid/getppid/' /usr/bin/vlc
