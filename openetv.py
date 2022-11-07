@@ -13,6 +13,7 @@
 import os
 import sys
 import logging
+import time
 
 from openetv_libs import app, config, vlc
 #from openetv_libs.log import log
@@ -68,13 +69,13 @@ if __name__ == "__main__":
     openetv = app.App(openetv_config, logging)
     if len(sys.argv) == 2:
         if 'start' == sys.argv[1]:
-            logging.info("[Main] OpenETV started.")
+            logging.info("[Main] OpenETV started." + time.asctime( time.localtime(time.time()) ))
             openetv.start()
         elif 'stop' == sys.argv[1]:
-            logging.info("[Main] OpenETV stopped.")
+            logging.info("[Main] OpenETV stopped." + time.asctime( time.localtime(time.time()) ))
             openetv.stop()
         elif 'restart' == sys.argv[1]:
-            logging.info("[Main] OpenETV restarted.")
+            logging.info("[Main] OpenETV restarted." + time.asctime( time.localtime(time.time()) ))
             openetv.restart()
         else:
             print "usage: %s start|stop|restart" % sys.argv[0]

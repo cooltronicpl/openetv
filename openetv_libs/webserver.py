@@ -15,7 +15,7 @@ import base64
 from bouquets import Bouquets
 from channels import Channels
 
-#openetv_version = "201601403"
+openetv_version = "2022.10.1A"
 
 def get_version(openetv_config):
     f = open(openetv_config['openetv']['openetv_dir'] + "/VERSION", 'r')
@@ -72,14 +72,23 @@ def html_menu(openetv_config, vlc_quality, active_channel, active_channel_name, 
         html += "<option value=poor selected>poor</option>\n"
         html += "<option value=medium>medium</option>\n"
         html += "<option value=good>good</option>\n"
+        html += "<option value=best>best</option>\n"
     elif vlc_quality == "medium":
         html += "<option value=poor>poor</option>\n"
         html += "<option value=medium selected>medium</option>\n"
         html += "<option value=good>good</option>\n"
+        html += "<option value=best>best</option>\n"
+    elif vlc_quality == "best":
+        html += "<option value=poor>poor</option>\n"
+        html += "<option value=medium>medium</option>\n"
+        html += "<option value=good>good</option>\n"
+        html += "<option value=best selected>best</option>\n"
     else:
         html += "<option value=poor>poor</option>\n"
         html += "<option value=medium>medium</option>\n"
         html += "<option value=good selected>good</option>\n"
+        html += "<option value=best>best</option>\n"
+
     html += "</select>\n</form>\n"
 
     html += "<form>\n"
@@ -88,10 +97,12 @@ def html_menu(openetv_config, vlc_quality, active_channel, active_channel_name, 
     html += "<input type=button value='refresh channel list' onClick=location.href='/refresh=channel'>\n"
 
     html += "</form>\n"
+    domain = "http://" + openetv_config['vlc']['vlc_http_stream_bind_addr']
+    port = openetv_config['vlc']['vlc_http_stream_bind_port']
 
     if active_channel < max_channels:
-        html += "<b>Now Playing: " + active_channel_name + "</b><br><br>\n"
-        html += "<b>Stream: http://" + openetv_config['vlc']['vlc_http_stream_bind_addr'] + ":" + openetv_config['vlc']['vlc_http_stream_bind_port'] + "</b><br>\n"
+        html += "<b>Now Playing: " + active_channel_name + "</b> with quality: " + vlc_quality + "<br><br>\n"
+        html += "<b>Stream url: <br><a href='" + domain + ":" + port + "'>" + domain + ":" + port + "</a></b><br>\n"
 
     return html
 
@@ -110,10 +121,10 @@ def startservice(openetv_config, logging):
     bouquet_name = None
     bouquet_ref = None
 
-    max_bouquets = 1000
-    max_channels = 1000
+    max_bouquets = 100000
+    max_channels = 100000
 
-    vlc_quality = "good"
+    vlc_quality = "poor"
 
     # create the bouquets and channels objects
     r_bouquets = Bouquets(openetv_config, logging)
@@ -134,12 +145,15 @@ def startservice(openetv_config, logging):
 
         # refresh the channel list
         rc_res = r_channels.refresh_channel_list(bouquet_name, bouquet_ref)
+        logging.debug("[App::run] Get bouqet " + bouquet_name)
 
         # socket/bind/listen setup
         s = socket.socket()
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
         s.bind((openetv_config['openetv']['bind_host'], int(openetv_config['openetv']['bind_port'])))
         s.listen(5)
+        logging.debug("[App::run] Socket listen")
 
         while True:
             c, addr = s.accept()
@@ -182,11 +196,10 @@ def startservice(openetv_config, logging):
                     write_data += "Content-Length: %d\n" % len(html)
                     write_data += "Content-Type: text/html\n\n"
                     write_data += html
-
                     c.send(write_data)
                 elif page[:8] == "/quality":
                     """
-                    Expected parameters: /quality=<poor|medium|good>
+                    Expected parameters: /quality=<poor|medium|good|best>
                     """
 
                     q_str = page.split('=')[1]
@@ -195,6 +208,8 @@ def startservice(openetv_config, logging):
                         vlc_quality = "poor"
                     elif q_str == "medium":
                         vlc_quality = "medium"
+                    elif q_str == "best":
+                        vlc_quality = "best"
                     else:
                         vlc_quality = "good"
 
@@ -212,6 +227,15 @@ def startservice(openetv_config, logging):
 
                     html += html_menu(openetv_config, vlc_quality, active_channel, active_channel_name, max_channels)
                     html += html_footer(openetv_config)
+                    stop_res = r_channels.stop_channel()
+                    
+                    if stop_res:
+                        try:
+                            id = int(cid)                    
+                        except ValueError:
+                            html += "<b>Error: OpenETV can't assume what program you watching, please restart stream manually!</b><br>"
+                        else:
+                            r_channels.play_channel(id, vlc_quality)
 
                     write_data = "HTTP/1.1 200 OK\n"
                     write_data += "Content-Length: %d\n" % len(html)
@@ -265,7 +289,7 @@ def startservice(openetv_config, logging):
                         write_data = "HTTP/1.1 200 OK\n"
                         write_data += "Content-Length: %d\n" % len(html)
                         write_data += "Content-Type: text/html\n\n"
-                        write_data += html
+                        write_data += html                    
 
                         c.send(write_data)
                         c.close()
@@ -338,7 +362,7 @@ def startservice(openetv_config, logging):
                             html += "<b>Error: could not get bouquet list!</b>"
 
                         html += html_menu(openetv_config, vlc_quality, active_channel, active_channel_name, max_channels)
-                        html += "<b>Error: playlist id is not in range between 0 and 999!</b><br>"
+                        html += "<b>Error: playlist id is not in range between 0 and max value!</b><br>"
                         html += html_footer(openetv_config)
 
                         write_data = "HTTP/1.1 200 OK\n"
@@ -375,9 +399,9 @@ def startservice(openetv_config, logging):
                     write_data += html
 
                     c.send(write_data)
-
+                    c.close()
                     # shutdown the socket, otherwise the client still thinks it recieves data
-                    c.shutdown(socket.SHUT_RDWR)
+                    #c.shutdown(socket.SHUT_RDWR)
                 elif page[:5] == "/stop":
                     """
                     Expected parameters: none

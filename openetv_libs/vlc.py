@@ -10,6 +10,7 @@
 #
 
 import os
+import os.path
 
 def get_vlc_pid(pidfile, logging):
     try:
@@ -30,4 +31,8 @@ def write_vlc_pid(pidfile, pid):
     f.close()
 
 def remove_vlc_pid(pidfile):
-    os.remove(pidfile)
+    if os.path.exists(pidfile):
+        try:
+            os.remove(pidfile)
+        except Exception:
+            logging.debug("[remove_vlc_pid] can't delete PID file, aborting!")

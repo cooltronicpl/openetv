@@ -43,6 +43,7 @@ class Channels(object):
         self.vlc_stream_options_poor = self.openetv_config['vlc']['vlc_stream_options_poor']
         self.vlc_stream_options_medium = self.openetv_config['vlc']['vlc_stream_options_medium']
         self.vlc_stream_options_good = self.openetv_config['vlc']['vlc_stream_options_good']
+        self.vlc_stream_options_best = self.openetv_config['vlc']['vlc_stream_options_best']
         self.vlc_http_stream_bind_addr = self.openetv_config['vlc']['vlc_http_stream_bind_addr']
         self.vlc_http_stream_bind_port = self.openetv_config['vlc']['vlc_http_stream_bind_port']
 
@@ -156,17 +157,21 @@ class Channels(object):
         # store the name and stream url
         ni = None
         for line in content.split('\n'):
-            if line[:7] == "#EXTINF":
+            if line[:10] == "#EXTINF:-1":
                 name = line.split(',')[1]
                 ni = True
             else:
                 if ni:
+                    self.logging.debug("[Channels::get_channel_list] debug channel n: " + name + "line:"+line);
+
                     self.channels.append(Channel(name,line))
+
                     ni = None
 
-        if len(self.channels) < 1:
-            return None
-
+#        if len(self.channels) < 1:
+#            return None
+        self.logging.info("[Channels::get_channel_list] before return");
+        
         return True
 
     def list_channels(self):
@@ -229,11 +234,13 @@ class Channels(object):
 
         # construct the VLC command
         if vlc_quality == "poor":
-            cmd = self.vlc_exe + " \"" + self.channels[id].stream + "\" --sout '#transcode{" + self.vlc_stream_options_poor + "}:standard{access=http,mux=ts,dst=" + self.vlc_http_stream_bind_addr + ":" + self.vlc_http_stream_bind_port + "}'" # + " > /dev/null 2>&1 &"
+            cmd = self.vlc_exe + " \"" + self.channels[id].stream + "\" --no-ts-trust-pcr --ts-seek-percent --sout '#transcode{" + self.vlc_stream_options_poor + "}:standard{access=http,mux=ts,dst=" + self.vlc_http_stream_bind_addr + ":" + self.vlc_http_stream_bind_port + "}'" # + " > /dev/null 2>&1 &"
         elif vlc_quality == "medium":
-            cmd = self.vlc_exe + " \"" + self.channels[id].stream + "\" --sout '#transcode{" + self.vlc_stream_options_medium + "}:standard{access=http,mux=ts,dst=" + self.vlc_http_stream_bind_addr + ":" + self.vlc_http_stream_bind_port + "}'" # + " > /dev/null 2>&1 &"
+            cmd = self.vlc_exe + " \"" + self.channels[id].stream + "\" --no-ts-trust-pcr --ts-seek-percent --sout '#transcode{" + self.vlc_stream_options_medium + "}:standard{access=http,mux=ts,dst=" + self.vlc_http_stream_bind_addr + ":" + self.vlc_http_stream_bind_port + "}'" # + " > /dev/null 2>&1 &"
+        elif vlc_quality == "best":
+            cmd = self.vlc_exe + " \"" + self.channels[id].stream + "\" --no-ts-trust-pcr --ts-seek-percent --sout '#transcode{" + self.vlc_stream_options_best + "}:standard{access=http,mux=ts,dst=" + self.vlc_http_stream_bind_addr + ":" + self.vlc_http_stream_bind_port + "}'" # + " > /dev/null 2>&1 &"
         else:
-            cmd = self.vlc_exe + " \"" + self.channels[id].stream + "\" --sout '#transcode{" + self.vlc_stream_options_good + "}:standard{access=http,mux=ts,dst=" + self.vlc_http_stream_bind_addr + ":" + self.vlc_http_stream_bind_port + "}'" # + " > /dev/null 2>&1 &"
+            cmd = self.vlc_exe + " \"" + self.channels[id].stream + "\" --no-ts-trust-pcr --ts-seek-percent --sout '#transcode{" + self.vlc_stream_options_good + "}:standard{access=http,mux=ts,dst=" + self.vlc_http_stream_bind_addr + ":" + self.vlc_http_stream_bind_port + "}'" # + " > /dev/null 2>&1 &"
 
         self.logging.debug("[Channels::play_channel] debug: launching transcoding process with command [" + cmd + "]")
 
@@ -255,13 +262,20 @@ class Channels(object):
         self.logging.debug("[Channels::stop_channel] debug: entering function")
 
         if self.active_channel == self.max_channels:
-            self.logging.info("[Channels::stop_channel] error: no channel playing!")
+            self.logging.debug("[Channels::stop_channel] error: no channel playing!")
 
             return None
 
-        # shutdown VLC (in some circumstances VLC doesn't shutdown properly. that's why we always send the SIGKILL signal).
-        os.kill(vlc.get_vlc_pid(self.vlc_pidfile, self.logging), signal.SIGKILL)
+        # shutdown VLC (in some circumstances VLC doesn't shutdown properly. that's why we always send the SIGKILL signal).    
+        try:
+            os.kill(vlc.get_vlc_pid(self.vlc_pidfile, self.logging), signal.SIGKILL)
+        except Exception:
+            self.logging.debug("[Channels::stop_channel] error: can't stop vlc:")
 
+        # workaroud to kill VLC
+
+        os.system("/usr/bin/killall vlc")
+        os.system("/usr/bin/pfkill vlc")
         # wait for it, otherwise it turns into a zombie
         self.vlc_proc.wait()
 
