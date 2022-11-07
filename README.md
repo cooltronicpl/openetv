@@ -70,9 +70,11 @@ apt-get install -y python-libxml2
 apt-get install -y pulseaudio
 ```
 
-### Run VLC as root in LXC
+### Run VLC as root in LXC\
 
+```
 sed -i 's/geteuid/getppid/' /usr/bin/vlc
+```
 
 ### Mac OS X
 
@@ -138,7 +140,7 @@ $ ./openetv.py start
 Note: it's not recommended to start openetv as root. Instead create a service account and run openetv with
 reduced privileges.
 
-Launch your browser and go to: "http://<openetv-host>".
+Launch your browser and go to: "http://openetv-host".
 
 Select your bouquet and channel.
 
@@ -150,7 +152,7 @@ Select one of the transcoding options:
 Note: Transcoding is a heavy CPU intensive process so you need a PC with enough power to suit your needs.
 
 Click on the "start stream" button. Then launch VLC on your client device
-and connect it to "http://<openetv-host>:81".
+and connect it to "http://openetv-host:81".
 
 If something went wrong you can check the openetv.log file for errors. If it doesn't have enough information
 you can set the debug flag in openetv.py to 1 and restart it. Then repeat the browser steps and recheck the
