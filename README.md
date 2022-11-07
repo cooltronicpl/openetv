@@ -107,21 +107,30 @@ Set the openetv_logfile and openetv_pidfile variables to a directory path where 
 
 Enigma host:
 Make sure the Enigma WebIf is enabled on your Dreambox or clone. If so, configure the ip address and the tcp port
-of your device in the following options, for example:
+of your device in the following options, for example:\
+
+```
 enigma2_host     = 192.168.0.10
 enigma2_port     = 80
+```
 
 If you use https, and for example on port 443, set the enigma2_use_ssl variable to "yes": 
+
+```
 enigma2_port     = 443
 enigma2_use_ssl  = yes
+```
 
 If you enabled authentication, set the enigma2_username and enigma2_password variables, for example:
+
+```
 enigma2_username = username
 enigma2_password = password
 
+```
 VLC executable path:
-Set the correct vlc executable path (default is Linux) by comment/uncommenting the vlc_exe variable.
 
+Set the correct vlc executable path (default is Linux) by comment/uncommenting the vlc_exe variable.
 
 ## Start OpenETV
 $ ./openetv.py start
@@ -129,7 +138,7 @@ $ ./openetv.py start
 Note: it's not recommended to start openetv as root. Instead create a service account and run openetv with
 reduced privileges.
 
-Launch your browser and go to: "http://<openetv-host>:8081".
+Launch your browser and go to: "http://<openetv-host>".
 
 Select your bouquet and channel.
 
@@ -141,7 +150,7 @@ Select one of the transcoding options:
 Note: Transcoding is a heavy CPU intensive process so you need a PC with enough power to suit your needs.
 
 Click on the "start stream" button. Then launch VLC on your client device
-and connect it to "http://<openetv-host>:8080".
+and connect it to "http://<openetv-host>:81".
 
 If something went wrong you can check the openetv.log file for errors. If it doesn't have enough information
 you can set the debug flag in openetv.py to 1 and restart it. Then repeat the browser steps and recheck the
@@ -207,7 +216,9 @@ https://www.liquidweb.com/kb/enable-root-login-via-ssh/
 ## LICENSE
 
 Copyright (c) 2014 by Joey Loman, <joey@binbash.org>
+
 Copyright (c) 2022 by CoolTRONIC.pl sp. z o.o. by Paweł Potacki, <github@cooltronic.pl>
+
 https://cooltronic.pl/ https://potacki.com/
 
 This program is free software; you can redistribute it and/or modify it
