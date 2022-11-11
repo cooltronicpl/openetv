@@ -215,6 +215,8 @@ apt-get install openssh-server
 On Ubuntu enable root login to machine:
 https://www.liquidweb.com/kb/enable-root-login-via-ssh/
 
+With ❤ by [CoolTRONIC.pl sp. z o.o.](https://cooltronic.pl) by [Pawel Potacki](https://potacki.com)
+
 ## LICENSE
 
 OpenETV
