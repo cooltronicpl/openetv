@@ -1,12 +1,12 @@
 OpenETV
 
-Copyright (C) 2014 Joey Loman (joey@openetv.org).
+Copyright (C) 2014 Joey Loman <joey@openetv.org>
 Copyright (c) 2022 by CoolTRONIC.pl sp. z o.o. by Paweł Potacki <github@cooltronic.pl>
-CoolTRONIC.pl sp. z o.o., hereby disclaims all copyright interest in the program “OpenETV” (which deconstructs trees) written by Paweł Potacki.
+CoolTRONIC.pl sp. z o.o., hereby disclaims all copyright interest in the program “OpenETV” written by Paweł Potacki.
 
 https://cooltronic.pl/ https://potacki.com/
 
-OpenETV is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+OpenETV is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 2 or 3 of the License, (at your option) any later version.
 
 OpenETV is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
