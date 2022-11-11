@@ -225,7 +225,7 @@ Copyright (C) 2014 Joey Loman <joey@openetv.org>
 
 Copyright (c) 2022 by CoolTRONIC.pl sp. z o.o. by Pawel Potacki <github@cooltronic.pl>
 
-CoolTRONIC.pl sp. z o.o., hereby disclaims all copyright interest in the program “OpenETV” written by Pawel Potacki and Joey Loman.
+CoolTRONIC.pl sp. z o.o., hereby holds all copyright interest in the program “OpenETV” written by Pawel Potacki.
 
 More about CoolTRONIC.pl sp. z o.o. Interactive Agency https://cooltronic.pl/
 
